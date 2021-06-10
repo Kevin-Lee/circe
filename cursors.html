@@ -26,7 +26,7 @@ data and for performing modification.</p>
 
 <h2 id="extracting-data">Extracting data</h2>
 
-<p>In order to traverse the document we need to create an <code class="language-plaintext highlighter-rouge">HCursor</code> with the focus at the document’s
+<p>In order to traverse the document we need to create an <code class="highlighter-rouge">HCursor</code> with the focus at the document’s
 root:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">cursor</span><span class="k">:</span> <span class="kt">HCursor</span> <span class="o">=</span> <span class="nv">doc</span><span class="o">.</span><span class="py">hcursor</span>
@@ -37,16 +37,16 @@ document and extract data from it:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">baz</span><span class="k">:</span> <span class="kt">Decoder.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span>
   <span class="nv">cursor</span><span class="o">.</span><span class="py">downField</span><span class="o">(</span><span class="s">"values"</span><span class="o">).</span><span class="py">downField</span><span class="o">(</span><span class="s">"baz"</span><span class="o">).</span><span class="py">as</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span>
-<span class="c1">// baz: Decoder.Result[Double] = Right(value = 100.001)</span>
+<span class="c1">// baz: Decoder.Result[Double] = Right(100.001)</span>
 
 <span class="c1">// You can also use `get[A](key)` as shorthand for `downField(key).as[A]`</span>
 <span class="k">val</span> <span class="nv">baz2</span><span class="k">:</span> <span class="kt">Decoder.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span>
   <span class="nv">cursor</span><span class="o">.</span><span class="py">downField</span><span class="o">(</span><span class="s">"values"</span><span class="o">).</span><span class="py">get</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="s">"baz"</span><span class="o">)</span>
-<span class="c1">// baz2: Decoder.Result[Double] = Right(value = 100.001)</span>
+<span class="c1">// baz2: Decoder.Result[Double] = Right(100.001)</span>
 
 <span class="k">val</span> <span class="nv">secondQux</span><span class="k">:</span> <span class="kt">Decoder.Result</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span>
   <span class="nv">cursor</span><span class="o">.</span><span class="py">downField</span><span class="o">(</span><span class="s">"values"</span><span class="o">).</span><span class="py">downField</span><span class="o">(</span><span class="s">"qux"</span><span class="o">).</span><span class="py">downArray</span><span class="o">.</span><span class="py">as</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span>
-<span class="c1">// secondQux: Decoder.Result[String] = Right(value = "a")</span>
+<span class="c1">// secondQux: Decoder.Result[String] = Right("a")</span>
 </code></pre></div></div>
 
 <h2 id="transforming-data">Transforming data</h2>
@@ -57,12 +57,12 @@ document and extract data from it:</p>
   <span class="nv">cursor</span><span class="o">.</span><span class="py">downField</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="py">withFocus</span><span class="o">(</span><span class="nv">_</span><span class="o">.</span><span class="py">mapString</span><span class="o">(</span><span class="nv">_</span><span class="o">.</span><span class="py">reverse</span><span class="o">))</span>
 </code></pre></div></div>
 
-<p>We can then return to the root of the document and return its value with <code class="language-plaintext highlighter-rouge">top</code>:</p>
+<p>We can then return to the root of the document and return its value with <code class="highlighter-rouge">top</code>:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">reversedName</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Json</span><span class="o">]</span> <span class="k">=</span> <span class="nv">reversedNameCursor</span><span class="o">.</span><span class="py">top</span>
 <span class="c1">// reversedName: Option[Json] = Some(</span>
-<span class="c1">//   value = JObject(</span>
-<span class="c1">//     value = object[id -&gt; "c730433b-082c-4984-9d66-855c243266f0",name -&gt; "ooF",counts -&gt; [</span>
+<span class="c1">//   JObject(</span>
+<span class="c1">//     object[id -&gt; "c730433b-082c-4984-9d66-855c243266f0",name -&gt; "ooF",counts -&gt; [</span>
 <span class="c1">//   1,</span>
 <span class="c1">//   2,</span>
 <span class="c1">//   3</span>
@@ -78,18 +78,18 @@ document and extract data from it:</p>
 <span class="c1">// )</span>
 </code></pre></div></div>
 
-<p>The result contains the original document with the <code class="language-plaintext highlighter-rouge">"name"</code> field reversed.</p>
+<p>The result contains the original document with the <code class="highlighter-rouge">"name"</code> field reversed.</p>
 
-<p>Note that <code class="language-plaintext highlighter-rouge">Json</code> is immutable, so the original document is left unchanged.</p>
+<p>Note that <code class="highlighter-rouge">Json</code> is immutable, so the original document is left unchanged.</p>
 
 <h2 id="cursors">Cursors</h2>
 
 <p>circe has three slightly different cursor implementations:</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">Cursor</code> provides functionality for moving around a tree and making modifications</li>
-  <li><code class="language-plaintext highlighter-rouge">HCursor</code> tracks the history of operations performed. This can be used to provide useful error messages when something goes wrong.</li>
-  <li><code class="language-plaintext highlighter-rouge">ACursor</code> also tracks history, but represents the possibility of failure (e.g. calling <code class="language-plaintext highlighter-rouge">downField</code> on a field that doesn’t exist)</li>
+  <li><code class="highlighter-rouge">Cursor</code> provides functionality for moving around a tree and making modifications</li>
+  <li><code class="highlighter-rouge">HCursor</code> tracks the history of operations performed. This can be used to provide useful error messages when something goes wrong.</li>
+  <li><code class="highlighter-rouge">ACursor</code> also tracks history, but represents the possibility of failure (e.g. calling <code class="highlighter-rouge">downField</code> on a field that doesn’t exist)</li>
 </ul>
 
 <h2 id="optics">Optics</h2>

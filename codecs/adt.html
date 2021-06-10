@@ -36,9 +36,9 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Note that we have to call <code class="language-plaintext highlighter-rouge">widen</code> (which is provided by Cats’s <code class="language-plaintext highlighter-rouge">Functor</code> syntax, which we bring into scope with the first import) on the decoders because the <code class="language-plaintext highlighter-rouge">Decoder</code> type class is not covariant. The invariance of circe’s type classes is a matter of <a href="https://twitter.com/Gentmen/status/829431567315513344">some controversy</a> (<code class="language-plaintext highlighter-rouge">Argonaut</code> for example has gone from invariant to covariant and back), but it has enough benefits that it’s unlikely to change, which means we need workarounds like this occasionally.</p>
+<p>Note that we have to call <code class="highlighter-rouge">widen</code> (which is provided by Cats’s <code class="highlighter-rouge">Functor</code> syntax, which we bring into scope with the first import) on the decoders because the <code class="highlighter-rouge">Decoder</code> type class is not covariant. The invariance of circe’s type classes is a matter of <a href="https://twitter.com/Gentmen/status/829431567315513344">some controversy</a> (<code class="highlighter-rouge">Argonaut</code> for example has gone from invariant to covariant and back), but it has enough benefits that it’s unlikely to change, which means we need workarounds like this occasionally.</p>
 
-<p>It’s also worth noting that our explicit <code class="language-plaintext highlighter-rouge">Encoder</code> and <code class="language-plaintext highlighter-rouge">Decoder</code> instances will take precedence over the generically-derived instances we would otherwise get from the <code class="language-plaintext highlighter-rouge">io.circe.generic.auto._</code> import (see slides from Travis Brown’s talk <a href="http://meta.plasm.us/slides/scalaworld/#1">here</a> for some discussion of how this prioritization works).</p>
+<p>It’s also worth noting that our explicit <code class="highlighter-rouge">Encoder</code> and <code class="highlighter-rouge">Decoder</code> instances will take precedence over the generically-derived instances we would otherwise get from the <code class="highlighter-rouge">io.circe.generic.auto._</code> import (see slides from Travis Brown’s talk <a href="http://meta.plasm.us/slides/scalaworld/#1">here</a> for some discussion of how this prioritization works).</p>
 
 <p>We can use these instances like this:</p>
 
@@ -46,7 +46,7 @@
 <span class="k">import</span> <span class="nn">io.circe.parser.decode</span>
 
 <span class="n">decode</span><span class="o">[</span><span class="kt">Event</span><span class="o">](</span><span class="s">"""{ "i": 1000 }"""</span><span class="o">)</span>
-<span class="c1">// res0: Either[io.circe.Error, Event] = Right(value = Foo(i = 1000))</span>
+<span class="c1">// res0: Either[io.circe.Error, Event] = Right(Foo(1000))</span>
 
 <span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span><span class="k">:</span> <span class="kt">Event</span><span class="o">).</span><span class="py">asJson</span><span class="o">.</span><span class="py">noSpaces</span>
 <span class="c1">// res1: String = "{\"i\":100}"</span>
@@ -56,7 +56,7 @@
 
 <h3 id="a-more-generic-solution">A more generic solution</h3>
 
-<p>As discussed <a href="https://gitter.im/circe/circe?at=589dee5daa800ee52c7aac8a">on Gitter</a>, we can avoid the fuss of writing out all the cases by using the <code class="language-plaintext highlighter-rouge">circe-shapes</code> module:</p>
+<p>As discussed <a href="https://gitter.im/circe/circe?at=589dee5daa800ee52c7aac8a">on Gitter</a>, we can avoid the fuss of writing out all the cases by using the <code class="highlighter-rouge">circe-shapes</code> module:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// To suppress previously imported inplicit codecs.</span>
 <span class="k">import</span> <span class="nn">GenericDerivation.</span><span class="o">{</span> <span class="n">decodeEvent</span> <span class="k">=&gt;</span> <span class="k">_</span><span class="o">,</span> <span class="n">encodeEvent</span> <span class="k">=&gt;</span> <span class="k">_</span> <span class="o">}</span>
@@ -84,19 +84,19 @@
 <span class="k">import</span> <span class="nn">io.circe.parser.decode</span><span class="o">,</span> <span class="nv">io</span><span class="o">.</span><span class="py">circe</span><span class="o">.</span><span class="py">syntax</span><span class="o">.</span><span class="py">_</span>
 
 <span class="n">decode</span><span class="o">[</span><span class="kt">Event</span><span class="o">](</span><span class="s">"""{ "i": 1000 }"""</span><span class="o">)</span>
-<span class="c1">// res2: Either[io.circe.Error, Event] = Right(value = Foo(i = 1000))</span>
+<span class="c1">// res2: Either[io.circe.Error, Event] = Right(Foo(1000))</span>
 
 <span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span><span class="k">:</span> <span class="kt">Event</span><span class="o">).</span><span class="py">asJson</span><span class="o">.</span><span class="py">noSpaces</span>
 <span class="c1">// res3: String = "{\"i\":100}"</span>
 </code></pre></div></div>
 
-<p>This will work for any ADT anywhere that <code class="language-plaintext highlighter-rouge">encodeAdtNoDiscr</code> and <code class="language-plaintext highlighter-rouge">decodeAdtNoDiscr</code> are in scope. If we wanted it to be more limited, we could replace the generic <code class="language-plaintext highlighter-rouge">A</code> with our ADT types in those definitions, or we could make the definitions non-implicit and define implicit instances explicitly for the ADTs we want encoded this way.</p>
+<p>This will work for any ADT anywhere that <code class="highlighter-rouge">encodeAdtNoDiscr</code> and <code class="highlighter-rouge">decodeAdtNoDiscr</code> are in scope. If we wanted it to be more limited, we could replace the generic <code class="highlighter-rouge">A</code> with our ADT types in those definitions, or we could make the definitions non-implicit and define implicit instances explicitly for the ADTs we want encoded this way.</p>
 
-<p>The main drawback of this approach (apart from the extra <code class="language-plaintext highlighter-rouge">circe-shapes</code> dependency) is that the constructors will be tried in alphabetical order, which may not be what we want if we have ambiguous case classes (where the member names and types are the same).</p>
+<p>The main drawback of this approach (apart from the extra <code class="highlighter-rouge">circe-shapes</code> dependency) is that the constructors will be tried in alphabetical order, which may not be what we want if we have ambiguous case classes (where the member names and types are the same).</p>
 
 <h3 id="the-future">The future</h3>
 
-<p>The <code class="language-plaintext highlighter-rouge">generic-extras</code> module provides a little more configurability in this respect. We can write the following, for example:</p>
+<p>The <code class="highlighter-rouge">generic-extras</code> module provides a little more configurability in this respect. We can write the following, for example:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.extras.auto._</span>
 <span class="k">import</span> <span class="nn">io.circe.generic.extras.Configuration</span>
@@ -113,14 +113,14 @@
 <span class="c1">// res4: String = "{\"i\":100}"</span>
 
 <span class="n">decode</span><span class="o">[</span><span class="kt">Event</span><span class="o">](</span><span class="s">"""{ "i": 1000, "what_am_i": "Foo" }"""</span><span class="o">)</span>
-<span class="c1">// res5: Either[io.circe.Error, Event] = Right(value = Foo(i = 1000))</span>
+<span class="c1">// res5: Either[io.circe.Error, Event] = Right(Foo(1000))</span>
 </code></pre></div></div>
 
-<p>Instead of a wrapper object in the JSON we have an extra field that indicates the constructor. This isn’t the default behavior since it has some weird corner cases (e.g. if one of our case classes had a member named <code class="language-plaintext highlighter-rouge">what_am_i</code>), but in many cases it’s reasonable and it’s been supported in <code class="language-plaintext highlighter-rouge">generic-extras</code> since that module was introduced.</p>
+<p>Instead of a wrapper object in the JSON we have an extra field that indicates the constructor. This isn’t the default behavior since it has some weird corner cases (e.g. if one of our case classes had a member named <code class="highlighter-rouge">what_am_i</code>), but in many cases it’s reasonable and it’s been supported in <code class="highlighter-rouge">generic-extras</code> since that module was introduced.</p>
 
 <h3 id="notes">Notes</h3>
 
-<p>This still doesn’t get us exactly what we want, but it’s closer than the default behavior. It’s also been considered to change <code class="language-plaintext highlighter-rouge">withDiscriminator</code> to take an <code class="language-plaintext highlighter-rouge">Option[String]</code> instead of a <code class="language-plaintext highlighter-rouge">String</code>, with <code class="language-plaintext highlighter-rouge">None</code> indicating that we don’t want an extra field indicating the constructor, giving us the same behavior as our <code class="language-plaintext highlighter-rouge">circe-shape</code>s instances in the previous section, but haven’t been implemented so far.</p>
+<p>This still doesn’t get us exactly what we want, but it’s closer than the default behavior. It’s also been considered to change <code class="highlighter-rouge">withDiscriminator</code> to take an <code class="highlighter-rouge">Option[String]</code> instead of a <code class="highlighter-rouge">String</code>, with <code class="highlighter-rouge">None</code> indicating that we don’t want an extra field indicating the constructor, giving us the same behavior as our <code class="highlighter-rouge">circe-shape</code>s instances in the previous section, but haven’t been implemented so far.</p>
 </section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/circe/highlight/highlight.pack.js"></script><script src="/circe/lunr/lunr.js"></script><script>
 // For all code blocks, copy the language from the containing div
 // to the inner code tag (where hljs expects it to be)

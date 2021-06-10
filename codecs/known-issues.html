@@ -5,7 +5,7 @@
     <p>Generic derivation may not work as expected when the type definitions that you’re trying to
 derive instances for are at the same level as the attempted derivation. For example:</p>
 
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scala&gt; import io.circe.Decoder, io.circe.generic.auto._
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scala&gt; import io.circe.Decoder, io.circe.generic.auto._
 import io.circe.Decoder
 import io.circe.generic.auto._
 
@@ -26,14 +26,14 @@ derivation (which is typically what you want, anyway).</p>
   </li>
   <li>
     <p>For large or deeply-nested case classes and sealed trait hierarchies, the generic derivation
-provided by the <code class="language-plaintext highlighter-rouge">generic</code> subproject may stack overflow during compilation, which will result in
+provided by the <code class="highlighter-rouge">generic</code> subproject may stack overflow during compilation, which will result in
 the derived encoders or decoders simply not being found. Increasing the stack size available to
-the compiler (e.g. with <code class="language-plaintext highlighter-rouge">sbt -J-Xss64m</code> if you’re using SBT) will help in many cases, but we have
+the compiler (e.g. with <code class="highlighter-rouge">sbt -J-Xss64m</code> if you’re using SBT) will help in many cases, but we have
 at least <a href="http://stackoverflow.com/questions/33318802/scala-parse-json-of-more-than-22-elements-into-case-class/33319168?noredirect=1#comment55069438_33319168">one report</a> of a case where it doesn’t.
-It might be simpler and safer to add <code class="language-plaintext highlighter-rouge">.sbtopts</code> file with SBT parameters (<code class="language-plaintext highlighter-rouge">-J-Xss64m</code>) in root of project.</p>
+It might be simpler and safer to add <code class="highlighter-rouge">.sbtopts</code> file with SBT parameters (<code class="highlighter-rouge">-J-Xss64m</code>) in root of project.</p>
   </li>
   <li>
-    <p>More generally, the generic derivation provided by the <code class="language-plaintext highlighter-rouge">generic</code> subproject works for a wide
+    <p>More generally, the generic derivation provided by the <code class="highlighter-rouge">generic</code> subproject works for a wide
 range of test cases, and is likely to <em>just work</em> for you, but it relies on macros (provided by
 Shapeless) that rely on compiler functionality that is not always perfectly robust
 (“<a href="https://issues.scala-lang.org/browse/SI-7046">SI-7046</a> is like <a href="https://twitter.com/li_haoyi/status/637281580847878145">playing roulette</a>”), and if you’re running into
@@ -42,7 +42,7 @@ the <a href="https://gitter.im/circe/circe">Gitter channel</a>, and we’ll do o
 something we can fix.</p>
   </li>
   <li>
-    <p>When using the <code class="language-plaintext highlighter-rouge">io.circe.generic.JsonCodec</code> annotation, the following will not compile:</p>
+    <p>When using the <code class="highlighter-rouge">io.circe.generic.JsonCodec</code> annotation, the following will not compile:</p>
 
     <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.JsonCodec</span>
 
@@ -69,13 +69,13 @@ future versions).</p>
   <li>
     <p>circe’s representation of numbers is designed not to lose precision during decoding into integral
 or arbitrary-precision types, but precision may still be lost during parsing. This shouldn’t
-happen when using Jawn for parsing, but <code class="language-plaintext highlighter-rouge">scalajs.js.JSON</code> parses JSON numbers into a floating
-point representation that may lose precision (even when decoding into a type like <code class="language-plaintext highlighter-rouge">BigDecimal</code>;
+happen when using Jawn for parsing, but <code class="highlighter-rouge">scalajs.js.JSON</code> parses JSON numbers into a floating
+point representation that may lose precision (even when decoding into a type like <code class="highlighter-rouge">BigDecimal</code>;
 see <a href="https://github.com/circe/circe/issues/262">this issue</a> for an example).</p>
   </li>
 </ol>
 
-<h3 id="knowndirectsubclasses-error"><code class="language-plaintext highlighter-rouge">knownDirectSubclasses</code> error</h3>
+<h3 id="knowndirectsubclasses-error"><code class="highlighter-rouge">knownDirectSubclasses</code> error</h3>
 
 <p>While using fully automatic derivation, you may have run into an error that looks like this:</p>
 
@@ -84,18 +84,18 @@ see <a href="https://github.com/circe/circe/issues/262">this issue</a> for an ex
 
 <p>This is a known issue (<a href="https://github.com/circe/circe/issues/434">#434</a>, <a href="https://github.com/circe/circe/issues/639">#659</a>)
 that stems from the way fully automatic derivation relies on Shapeless, which in turn conditionally
-calls a Scala Reflect named called <code class="language-plaintext highlighter-rouge">knownDirectSubclasses</code>. This method has been known to fail depending
+calls a Scala Reflect named called <code class="highlighter-rouge">knownDirectSubclasses</code>. This method has been known to fail depending
 on how the types that it interacts with are declared in your codebase.</p>
 
 <p>Here is a collection workarounds found by other users that you can try:</p>
 
 <ol>
   <li>Rename your files/directories so that the files containing types that get encoded/decoded come
-alphabetically before the files that <code class="language-plaintext highlighter-rouge">import io.circe.generic.auto._</code> and turn values of those
+alphabetically before the files that <code class="highlighter-rouge">import io.circe.generic.auto._</code> and turn values of those
 types into JSON.</li>
   <li>
-    <p>If you’ve got a sealed trait (e.g. <code class="language-plaintext highlighter-rouge">sealed trait MyEnum</code>) and it has subclasses that are declared
-in its companion object, try adding a <code class="language-plaintext highlighter-rouge">import MyEnum._</code> statement before any calls that force the
+    <p>If you’ve got a sealed trait (e.g. <code class="highlighter-rouge">sealed trait MyEnum</code>) and it has subclasses that are declared
+in its companion object, try adding a <code class="highlighter-rouge">import MyEnum._</code> statement before any calls that force the
 materialising of an encoder/decoder.</p>
 
     <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.syntax._</span>

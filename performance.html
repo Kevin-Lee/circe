@@ -7,7 +7,7 @@ make circe faster (the public API does not and will never expose any of this, th
 <p><a href="https://github.com/circe/circe-benchmarks/blob/9edb76ef0de7e59fa101db0058ccc2a83253dd80/src/main/scala/io/circe/benchmarks/Benchmark.scala">My initial benchmarks</a> suggest this is at least kind of working (higher numbers are
 better):</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmark                          Mode  Cnt        Score       Error  Units
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmark                          Mode  Cnt        Score       Error  Units
 DecodingBenchmark.decodeFoosC     thrpt   40     3711.680 ±    22.766  ops/s
 DecodingBenchmark.decodeFoosA     thrpt   40     1519.045 ±    11.373  ops/s
 DecodingBenchmark.decodeFoosP     thrpt   40     2032.834 ±    27.033  ops/s
@@ -59,7 +59,7 @@ PrintingBenchmark.printIntsS      thrpt   40    53015.753 ±   462.472  ops/s
 
 <p>And allocation rates (lower is better):</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmark                                              Mode  Cnt        Score        Error   Units
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmark                                              Mode  Cnt        Score        Error   Units
 
 DecodingBenchmark.decodeFoosC:gc.alloc.rate.norm      thrpt   20  1308424.455 ±      0.881    B/op
 DecodingBenchmark.decodeFoosA:gc.alloc.rate.norm      thrpt   20  3779097.640 ±      2.456    B/op
@@ -110,9 +110,9 @@ PrintingBenchmark.printIntsPico:gc.alloc.rate.norm    thrpt   20    95472.072 ±
 PrintingBenchmark.printIntsS:gc.alloc.rate.norm       thrpt   20    24048.032 ±      0.062    B/op
 </code></pre></div></div>
 
-<p>The <code class="language-plaintext highlighter-rouge">Foos</code> benchmarks work with a map containing case class values, and the <code class="language-plaintext highlighter-rouge">Ints</code> ones are an array
-of integers. <code class="language-plaintext highlighter-rouge">C</code> suffixes indicate circe’s throughput, <code class="language-plaintext highlighter-rouge">A</code> is for Argonaut, <code class="language-plaintext highlighter-rouge">P</code> is for
-<a href="https://www.playframework.com/documentation/2.4.x/ScalaJson">play-json</a>, <code class="language-plaintext highlighter-rouge">Pico</code> is for <a href="https://github.com/netvl/picopickle">picopickle</a>, and <code class="language-plaintext highlighter-rouge">S</code> is for
+<p>The <code class="highlighter-rouge">Foos</code> benchmarks work with a map containing case class values, and the <code class="highlighter-rouge">Ints</code> ones are an array
+of integers. <code class="highlighter-rouge">C</code> suffixes indicate circe’s throughput, <code class="highlighter-rouge">A</code> is for Argonaut, <code class="highlighter-rouge">P</code> is for
+<a href="https://www.playframework.com/documentation/2.4.x/ScalaJson">play-json</a>, <code class="highlighter-rouge">Pico</code> is for <a href="https://github.com/netvl/picopickle">picopickle</a>, and <code class="highlighter-rouge">S</code> is for
 <a href="https://github.com/spray/spray-json">spray-json</a>. Note that spray-json’s approach to failure handling is different from the
 approaches of the other libraries listed here (it simply throws exceptions), and this difference
 should be taken into account when comparing its results with the others.</p>

@@ -2,7 +2,7 @@
 
 <p>If you want to write your own codec instead of using automatic or semi-automatic derivation, you can do so in a couple of ways.</p>
 
-<p>Firstly, you can write a new <code class="language-plaintext highlighter-rouge">Encoder[A]</code> and <code class="language-plaintext highlighter-rouge">Decoder[A]</code> from scratch:</p>
+<p>Firstly, you can write a new <code class="highlighter-rouge">Encoder[A]</code> and <code class="highlighter-rouge">Decoder[A]</code> from scratch:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span> <span class="nc">Decoder</span><span class="o">,</span> <span class="nc">Encoder</span><span class="o">,</span> <span class="nc">HCursor</span><span class="o">,</span> <span class="nc">Json</span> <span class="o">}</span>
 
@@ -14,7 +14,7 @@
     <span class="o">(</span><span class="s">"bar"</span><span class="o">,</span> <span class="nv">Json</span><span class="o">.</span><span class="py">fromInt</span><span class="o">(</span><span class="nv">a</span><span class="o">.</span><span class="py">bar</span><span class="o">))</span>
   <span class="o">)</span>
 <span class="o">}</span>
-<span class="c1">// encodeFoo: Encoder[Thing] = repl.MdocSession$App$$anon$1@2b2f5133</span>
+<span class="c1">// encodeFoo: Encoder[Thing] = repl.MdocSession$App$$anon$1@5f5e0535</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">decodeFoo</span><span class="k">:</span> <span class="kt">Decoder</span><span class="o">[</span><span class="kt">Thing</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Decoder</span><span class="o">[</span><span class="kt">Thing</span><span class="o">]</span> <span class="o">{</span>
   <span class="k">final</span> <span class="k">def</span> <span class="nf">apply</span><span class="o">(</span><span class="n">c</span><span class="k">:</span> <span class="kt">HCursor</span><span class="o">)</span><span class="k">:</span> <span class="kt">Decoder.Result</span><span class="o">[</span><span class="kt">Thing</span><span class="o">]</span> <span class="k">=</span>
@@ -25,36 +25,36 @@
       <span class="k">new</span> <span class="nc">Thing</span><span class="o">(</span><span class="n">foo</span><span class="o">,</span> <span class="n">bar</span><span class="o">)</span>
     <span class="o">}</span>
 <span class="o">}</span>
-<span class="c1">// decodeFoo: Decoder[Thing] = repl.MdocSession$App$$anon$2@6525dc92</span>
+<span class="c1">// decodeFoo: Decoder[Thing] = repl.MdocSession$App$$anon$2@2e1cf20c</span>
 </code></pre></div></div>
 
 <p>But in many cases you might find it more convenient to piggyback on top of the decoders that are
-already available. For example, a codec for <code class="language-plaintext highlighter-rouge">java.time.Instant</code> might look like this:</p>
+already available. For example, a codec for <code class="highlighter-rouge">java.time.Instant</code> might look like this:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span> <span class="nc">Decoder</span><span class="o">,</span> <span class="nc">Encoder</span> <span class="o">}</span>
 <span class="k">import</span> <span class="nn">java.time.Instant</span>
 <span class="k">import</span> <span class="nn">scala.util.Try</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">encodeInstant</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Instant</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Encoder</span><span class="o">.</span><span class="py">encodeString</span><span class="o">.</span><span class="py">contramap</span><span class="o">[</span><span class="kt">Instant</span><span class="o">](</span><span class="nv">_</span><span class="o">.</span><span class="py">toString</span><span class="o">)</span>
-<span class="c1">// encodeInstant: Encoder[Instant] = io.circe.Encoder$$anon$1@69b61d11</span>
+<span class="c1">// encodeInstant: Encoder[Instant] = io.circe.Encoder$$anon$1@1a336b68</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">decodeInstant</span><span class="k">:</span> <span class="kt">Decoder</span><span class="o">[</span><span class="kt">Instant</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Decoder</span><span class="o">.</span><span class="py">decodeString</span><span class="o">.</span><span class="py">emapTry</span> <span class="o">{</span> <span class="n">str</span> <span class="k">=&gt;</span>
   <span class="nc">Try</span><span class="o">(</span><span class="nv">Instant</span><span class="o">.</span><span class="py">parse</span><span class="o">(</span><span class="n">str</span><span class="o">))</span>
 <span class="o">}</span>
-<span class="c1">// decodeInstant: Decoder[Instant] = io.circe.Decoder$$anon$14@3c3d6669</span>
+<span class="c1">// decodeInstant: Decoder[Instant] = io.circe.Decoder$$anon$14@5faa8b38</span>
 </code></pre></div></div>
 
 <h4 id="older-scala-versions">Older scala versions</h4>
 
 <p>If you are using custom codecs and an older versions of scala (below 2.12) and you get errors like 
-this <code class="language-plaintext highlighter-rouge">value flatMap is not a member of io.circe.Decoder.Result[Option[String]]</code> or 
-<code class="language-plaintext highlighter-rouge">value map is not a member of io.circe.Decoder.Result[Option[String]]</code> then you need to use the 
-following import: <code class="language-plaintext highlighter-rouge">import cats.syntax.either._</code> to fix this.</p>
+this <code class="highlighter-rouge">value flatMap is not a member of io.circe.Decoder.Result[Option[String]]</code> or 
+<code class="highlighter-rouge">value map is not a member of io.circe.Decoder.Result[Option[String]]</code> then you need to use the 
+following import: <code class="highlighter-rouge">import cats.syntax.either._</code> to fix this.</p>
 
 <h3 id="custom-key-types">Custom key types</h3>
 
-<p>If you need to encode/decode <code class="language-plaintext highlighter-rouge">Map[K, V]</code> where <code class="language-plaintext highlighter-rouge">K</code> is not <code class="language-plaintext highlighter-rouge">String</code> (or <code class="language-plaintext highlighter-rouge">Symbol</code>, <code class="language-plaintext highlighter-rouge">Int</code>, <code class="language-plaintext highlighter-rouge">Long</code>, etc.),
-you need to provide a <code class="language-plaintext highlighter-rouge">KeyEncoder</code> and/or <code class="language-plaintext highlighter-rouge">KeyDecoder</code> for your custom key type.</p>
+<p>If you need to encode/decode <code class="highlighter-rouge">Map[K, V]</code> where <code class="highlighter-rouge">K</code> is not <code class="highlighter-rouge">String</code> (or <code class="highlighter-rouge">Symbol</code>, <code class="highlighter-rouge">Int</code>, <code class="highlighter-rouge">Long</code>, etc.),
+you need to provide a <code class="highlighter-rouge">KeyEncoder</code> and/or <code class="highlighter-rouge">KeyDecoder</code> for your custom key type.</p>
 
 <p>For example:</p>
 
@@ -65,27 +65,24 @@ you need to provide a <code class="language-plaintext highlighter-rouge">KeyEnco
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">fooKeyEncoder</span><span class="k">:</span> <span class="kt">KeyEncoder</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">KeyEncoder</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="o">{</span>
   <span class="k">override</span> <span class="k">def</span> <span class="nf">apply</span><span class="o">(</span><span class="n">foo</span><span class="k">:</span> <span class="kt">Foo</span><span class="o">)</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="nv">foo</span><span class="o">.</span><span class="py">value</span>
 <span class="o">}</span>
-<span class="c1">// fooKeyEncoder: KeyEncoder[Foo] = repl.MdocSession$App$$anon$3@6dca0e14</span>
+<span class="c1">// fooKeyEncoder: KeyEncoder[Foo] = repl.MdocSession$App$$anon$3@70f24a55</span>
 <span class="k">val</span> <span class="nv">map</span> <span class="k">=</span> <span class="nc">Map</span><span class="o">[</span><span class="kt">Foo</span>, <span class="kt">Int</span><span class="o">](</span>
   <span class="nc">Foo</span><span class="o">(</span><span class="s">"hello"</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">123</span><span class="o">,</span>
   <span class="nc">Foo</span><span class="o">(</span><span class="s">"world"</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="mi">456</span>
 <span class="o">)</span>
-<span class="c1">// map: Map[Foo, Int] = Map(</span>
-<span class="c1">//   Foo(value = "hello") -&gt; 123,</span>
-<span class="c1">//   Foo(value = "world") -&gt; 456</span>
-<span class="c1">// )</span>
+<span class="c1">// map: Map[Foo, Int] = Map(Foo("hello") -&gt; 123, Foo("world") -&gt; 456)</span>
 
 <span class="k">val</span> <span class="nv">json</span> <span class="k">=</span> <span class="nv">map</span><span class="o">.</span><span class="py">asJson</span>
-<span class="c1">// json: Json = JObject(value = object[hello -&gt; 123,world -&gt; 456])</span>
+<span class="c1">// json: Json = JObject(object[hello -&gt; 123,world -&gt; 456])</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">fooKeyDecoder</span><span class="k">:</span> <span class="kt">KeyDecoder</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">KeyDecoder</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="o">{</span>
   <span class="k">override</span> <span class="k">def</span> <span class="nf">apply</span><span class="o">(</span><span class="n">key</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="n">key</span><span class="o">))</span>
 <span class="o">}</span>
-<span class="c1">// fooKeyDecoder: KeyDecoder[Foo] = repl.MdocSession$App$$anon$4@55059380</span>
+<span class="c1">// fooKeyDecoder: KeyDecoder[Foo] = repl.MdocSession$App$$anon$4@787b71ea</span>
 
 <span class="nv">json</span><span class="o">.</span><span class="py">as</span><span class="o">[</span><span class="kt">Map</span><span class="o">[</span><span class="kt">Foo</span>, <span class="kt">Int</span><span class="o">]]</span>
 <span class="c1">// res0: Decoder.Result[Map[Foo, Int]] = Right(</span>
-<span class="c1">//   value = Map(Foo(value = "hello") -&gt; 123, Foo(value = "world") -&gt; 456)</span>
+<span class="c1">//   Map(Foo("hello") -&gt; 123, Foo("world") -&gt; 456)</span>
 <span class="c1">// )</span>
 </code></pre></div></div>
 
@@ -103,19 +100,17 @@ all you need is a custom implicit configuration:</p>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">config</span><span class="k">:</span> <span class="kt">Configuration</span> <span class="o">=</span> <span class="nv">Configuration</span><span class="o">.</span><span class="py">default</span><span class="o">.</span><span class="py">withSnakeCaseMemberNames</span>
 <span class="c1">// config: Configuration = Configuration(</span>
-<span class="c1">//   transformMemberNames = io.circe.generic.extras.Configuration$$$Lambda$9260/1169484135@4515183f,</span>
-<span class="c1">//   transformConstructorNames = io.circe.generic.extras.Configuration$$$Lambda$9259/1111155786@5330233d,</span>
-<span class="c1">//   useDefaults = false,</span>
-<span class="c1">//   discriminator = None,</span>
-<span class="c1">//   strictDecoding = false</span>
+<span class="c1">//   io.circe.generic.extras.Configuration$$$Lambda$11709/1500054311@7808bc4c,</span>
+<span class="c1">//   io.circe.generic.extras.Configuration$$$Lambda$11708/816206121@c849582,</span>
+<span class="c1">//   false,</span>
+<span class="c1">//   None,</span>
+<span class="c1">//   false</span>
 <span class="c1">// )</span>
 
 <span class="nd">@ConfiguredJsonCodec</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">firstName</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">lastName</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
 
 <span class="nc">User</span><span class="o">(</span><span class="s">"Foo"</span><span class="o">,</span> <span class="s">"McBar"</span><span class="o">).</span><span class="py">asJson</span>
-<span class="c1">// res1: Json = JObject(</span>
-<span class="c1">//   value = object[first_name -&gt; "Foo",last_name -&gt; "McBar"]</span>
-<span class="c1">// )</span>
+<span class="c1">// res1: Json = JObject(object[first_name -&gt; "Foo",last_name -&gt; "McBar"])</span>
 </code></pre></div></div>
 
 <p>In other cases you may need more complex mappings. These can be provided as a function:</p>
@@ -129,17 +124,17 @@ all you need is a custom implicit configuration:</p>
   <span class="o">}</span>
 <span class="o">)</span>
 <span class="c1">// config: Configuration = Configuration(</span>
-<span class="c1">//   transformMemberNames = &lt;function1&gt;,</span>
-<span class="c1">//   transformConstructorNames = io.circe.generic.extras.Configuration$$$Lambda$9259/1111155786@5330233d,</span>
-<span class="c1">//   useDefaults = false,</span>
-<span class="c1">//   discriminator = None,</span>
-<span class="c1">//   strictDecoding = false</span>
+<span class="c1">//   &lt;function1&gt;,</span>
+<span class="c1">//   io.circe.generic.extras.Configuration$$$Lambda$11708/816206121@c849582,</span>
+<span class="c1">//   false,</span>
+<span class="c1">//   None,</span>
+<span class="c1">//   false</span>
 <span class="c1">// )</span>
 
 <span class="nd">@ConfiguredJsonCodec</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Bar</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
 
 <span class="nc">Bar</span><span class="o">(</span><span class="mi">13</span><span class="o">,</span> <span class="s">"Qux"</span><span class="o">).</span><span class="py">asJson</span>
-<span class="c1">// res3: io.circe.Json = JObject(value = object[my-int -&gt; 13,s -&gt; "Qux"])</span>
+<span class="c1">// res3: io.circe.Json = JObject(object[my-int -&gt; 13,s -&gt; "Qux"])</span>
 </code></pre></div></div>
 
 <p>Since this is a common use case, we also support for mapping member names via an annotation:</p>
@@ -148,21 +143,21 @@ all you need is a custom implicit configuration:</p>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">config</span><span class="k">:</span> <span class="kt">Configuration</span> <span class="o">=</span> <span class="nv">Configuration</span><span class="o">.</span><span class="py">default</span>
 <span class="c1">// config: Configuration = Configuration(</span>
-<span class="c1">//   transformMemberNames = io.circe.generic.extras.Configuration$$$Lambda$9258/896938947@37d6095c,</span>
-<span class="c1">//   transformConstructorNames = io.circe.generic.extras.Configuration$$$Lambda$9259/1111155786@5330233d,</span>
-<span class="c1">//   useDefaults = false,</span>
-<span class="c1">//   discriminator = None,</span>
-<span class="c1">//   strictDecoding = false</span>
+<span class="c1">//   io.circe.generic.extras.Configuration$$$Lambda$11707/58706061@49d692db,</span>
+<span class="c1">//   io.circe.generic.extras.Configuration$$$Lambda$11708/816206121@c849582,</span>
+<span class="c1">//   false,</span>
+<span class="c1">//   None,</span>
+<span class="c1">//   false</span>
 <span class="c1">// )</span>
 
 <span class="nd">@ConfiguredJsonCodec</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Bar</span><span class="o">(</span><span class="nd">@JsonKey</span><span class="o">(</span><span class="s">"my-int"</span><span class="o">)</span> <span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
 
 <span class="nc">Bar</span><span class="o">(</span><span class="mi">13</span><span class="o">,</span> <span class="s">"Qux"</span><span class="o">).</span><span class="py">asJson</span>
-<span class="c1">// res5: io.circe.Json = JObject(value = object[my-int -&gt; 13,s -&gt; "Qux"])</span>
+<span class="c1">// res5: io.circe.Json = JObject(object[my-int -&gt; 13,s -&gt; "Qux"])</span>
 </code></pre></div></div>
 
 <p>It’s worth noting that if you don’t want to use the experimental generic-extras module, the
-completely unmagical <code class="language-plaintext highlighter-rouge">forProductN</code> version isn’t really that much of a burden:</p>
+completely unmagical <code class="highlighter-rouge">forProductN</code> version isn’t really that much of a burden:</p>
 
 <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.Encoder</span><span class="o">,</span> <span class="nv">io</span><span class="o">.</span><span class="py">circe</span><span class="o">.</span><span class="py">syntax</span><span class="o">.</span><span class="py">_</span>
 
@@ -171,18 +166,18 @@ completely unmagical <code class="language-plaintext highlighter-rouge">forProdu
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">encodeUser</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span>
   <span class="nv">Encoder</span><span class="o">.</span><span class="py">forProduct2</span><span class="o">(</span><span class="s">"first_name"</span><span class="o">,</span> <span class="s">"last_name"</span><span class="o">)(</span><span class="n">u</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nv">u</span><span class="o">.</span><span class="py">firstName</span><span class="o">,</span> <span class="nv">u</span><span class="o">.</span><span class="py">lastName</span><span class="o">))</span>
-<span class="c1">// encodeUser: Encoder[User] = io.circe.ProductEncoders$$anon$2@148e2e50</span>
+<span class="c1">// encodeUser: Encoder[User] = io.circe.ProductEncoders$$anon$2@3cce66bf</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="nv">encodeBar</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Bar</span><span class="o">]</span> <span class="k">=</span>
   <span class="nv">Encoder</span><span class="o">.</span><span class="py">forProduct2</span><span class="o">(</span><span class="s">"my-int"</span><span class="o">,</span> <span class="s">"s"</span><span class="o">)(</span><span class="n">b</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="nv">b</span><span class="o">.</span><span class="py">i</span><span class="o">,</span> <span class="nv">b</span><span class="o">.</span><span class="py">s</span><span class="o">))</span>
-<span class="c1">// encodeBar: Encoder[Bar] = io.circe.ProductEncoders$$anon$2@133f2ed3</span>
+<span class="c1">// encodeBar: Encoder[Bar] = io.circe.ProductEncoders$$anon$2@556ca4e6</span>
 
 <span class="nc">User</span><span class="o">(</span><span class="s">"Foo"</span><span class="o">,</span> <span class="s">"McBar"</span><span class="o">).</span><span class="py">asJson</span>
 <span class="c1">// res7: io.circe.Json = JObject(</span>
-<span class="c1">//   value = object[first_name -&gt; "Foo",last_name -&gt; "McBar"]</span>
+<span class="c1">//   object[first_name -&gt; "Foo",last_name -&gt; "McBar"]</span>
 <span class="c1">// )</span>
 <span class="nc">Bar</span><span class="o">(</span><span class="mi">13</span><span class="o">,</span> <span class="s">"Qux"</span><span class="o">).</span><span class="py">asJson</span>
-<span class="c1">// res8: io.circe.Json = JObject(value = object[my-int -&gt; 13,s -&gt; "Qux"])</span>
+<span class="c1">// res8: io.circe.Json = JObject(object[my-int -&gt; 13,s -&gt; "Qux"])</span>
 </code></pre></div></div>
 
 <p>While this version does involve a bit of boilerplate, it only requires circe-core, and may have slightly better runtime performance in some cases.</p>
